@@ -1,6 +1,6 @@
 "use client";
 
-import { logout } from "@/app/login/actions";
+import { logout } from "@/app/(platform)/login/actions";
 import { IconLogOut } from "@/components/ui/icons";
 
 export const ProfilePopoutMenuLogoutButton = () => {
@@ -14,7 +14,7 @@ export const ProfilePopoutMenuLogoutButton = () => {
       <div className="relative h-6 w-6">
         <IconLogOut className="h-6 w-6" />
       </div>
-      <div className="font-['Geist'] text-base font-medium leading-normal text-neutral-800 dark:text-neutral-200">
+      <div className="font-sans text-base font-medium leading-normal text-neutral-800 dark:text-neutral-200">
         Log out
       </div>
     </div>

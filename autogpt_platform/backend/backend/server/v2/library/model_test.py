@@ -1,43 +1,42 @@
-import backend.server.v2.library.model
+import datetime
+
+import prisma.fields
+import prisma.models
+import pytest
+
+import backend.server.v2.library.model as library_model
 
 
-def test_library_agent():
-    agent = backend.server.v2.library.model.LibraryAgent(
+@pytest.mark.asyncio
+async def test_agent_preset_from_db():
+    # Create mock DB agent
+    db_agent = prisma.models.AgentPreset(
         id="test-agent-123",
-        version=1,
-        is_active=True,
+        createdAt=datetime.datetime.now(),
+        updatedAt=datetime.datetime.now(),
+        agentGraphId="agent-123",
+        agentGraphVersion=1,
         name="Test Agent",
-        description="Test description",
-        isCreatedByUser=False,
-        input_schema={"type": "object", "properties": {}},
-        output_schema={"type": "object", "properties": {}},
+        description="Test agent description",
+        isActive=True,
+        userId="test-user-123",
+        isDeleted=False,
+        InputPresets=[
+            prisma.models.AgentNodeExecutionInputOutput(
+                id="input-123",
+                time=datetime.datetime.now(),
+                name="input1",
+                data=prisma.Json({"type": "string", "value": "test value"}),
+            )
+        ],
     )
+
+    # Convert to LibraryAgentPreset
+    agent = library_model.LibraryAgentPreset.from_db(db_agent)
+
     assert agent.id == "test-agent-123"
-    assert agent.version == 1
+    assert agent.graph_version == 1
     assert agent.is_active is True
     assert agent.name == "Test Agent"
-    assert agent.description == "Test description"
-    assert agent.isCreatedByUser is False
-    assert agent.input_schema == {"type": "object", "properties": {}}
-    assert agent.output_schema == {"type": "object", "properties": {}}
-
-
-def test_library_agent_with_user_created():
-    agent = backend.server.v2.library.model.LibraryAgent(
-        id="user-agent-456",
-        version=2,
-        is_active=True,
-        name="User Created Agent",
-        description="An agent created by the user",
-        isCreatedByUser=True,
-        input_schema={"type": "object", "properties": {}},
-        output_schema={"type": "object", "properties": {}},
-    )
-    assert agent.id == "user-agent-456"
-    assert agent.version == 2
-    assert agent.is_active is True
-    assert agent.name == "User Created Agent"
-    assert agent.description == "An agent created by the user"
-    assert agent.isCreatedByUser is True
-    assert agent.input_schema == {"type": "object", "properties": {}}
-    assert agent.output_schema == {"type": "object", "properties": {}}
+    assert agent.description == "Test agent description"
+    assert agent.inputs == {"input1": {"type": "string", "value": "test value"}}

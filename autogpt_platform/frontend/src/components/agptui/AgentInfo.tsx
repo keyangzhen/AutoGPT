@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 import useSupabase from "@/hooks/useSupabase";
 import { DownloadIcon, LoaderIcon } from "lucide-react";
+import { useOnboarding } from "../onboarding/onboarding-provider";
 interface AgentInfoProps {
   name: string;
   creator: string;
@@ -39,14 +40,17 @@ export const AgentInfo: React.FC<AgentInfoProps> = ({
   const api = React.useMemo(() => new BackendAPI(), []);
   const { user } = useSupabase();
   const { toast } = useToast();
+  const { completeStep } = useOnboarding();
 
   const [downloading, setDownloading] = React.useState(false);
 
   const handleAddToLibrary = async () => {
     try {
-      await api.addAgentToLibrary(storeListingVersionId);
-      console.log("Agent added to library successfully");
-      router.push("/monitoring");
+      const newLibraryAgent = await api.addMarketplaceAgentToLibrary(
+        storeListingVersionId,
+      );
+      completeStep("MARKETPLACE_ADD_AGENT");
+      router.push(`/library/agents/${newLibraryAgent.id}`);
     } catch (error) {
       console.error("Failed to add agent to library:", error);
     }
@@ -95,7 +99,7 @@ export const AgentInfo: React.FC<AgentInfoProps> = ({
   return (
     <div className="w-full max-w-[396px] px-4 sm:px-6 lg:w-[396px] lg:px-0">
       {/* Title */}
-      <div className="font-poppins mb-3 w-full text-2xl font-medium leading-normal text-neutral-900 dark:text-neutral-100 sm:text-3xl lg:mb-4 lg:text-[35px] lg:leading-10">
+      <div className="mb-3 w-full font-poppins text-2xl font-medium leading-normal text-neutral-900 dark:text-neutral-100 sm:text-3xl lg:mb-4 lg:text-[35px] lg:leading-10">
         {name}
       </div>
 
@@ -169,10 +173,10 @@ export const AgentInfo: React.FC<AgentInfoProps> = ({
 
       {/* Description Section */}
       <div className="mb-4 w-full lg:mb-[36px]">
-        <div className="font-geist decoration-skip-ink-none mb-1.5 text-base font-medium leading-6 text-neutral-800 dark:text-neutral-200 sm:mb-2">
+        <div className="mb-1.5 font-sans text-base font-medium leading-6 text-neutral-800 dark:text-neutral-200 sm:mb-2">
           Description
         </div>
-        <div className="font-geist decoration-skip-ink-none text-base font-normal leading-6 text-neutral-600 underline-offset-[from-font] dark:text-neutral-400">
+        <div className="whitespace-pre-line font-sans text-base font-normal leading-6 text-neutral-600 dark:text-neutral-400">
           {longDescription}
         </div>
       </div>
